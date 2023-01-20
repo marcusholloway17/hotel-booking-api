@@ -1,8 +1,21 @@
 const models = require("../models");
-const { error, custom, notFound, translate } = require("../utils");
+const { error, custom, notFound, translate, success } = require("../utils");
 const query = require("../utils/queries/handleQuery");
 
-const create = (req, res) => {};
+const create = async (req, res) => {
+  try {
+    const user = await models.User.create(req?.body);
+    return custom(
+      res,
+      201,
+      true,
+      user,
+      translate(req, "successfull_operation")
+    );
+  } catch (err) {
+    return error(res, err);
+  }
+};
 
 const update = async (req, res) => {
   try {
@@ -39,6 +52,15 @@ const reads = async (req, res) => {
   }
 };
 
-const _delete = (req, res) => {};
+const _delete = async (req, res) => {
+  try {
+    const user = await models.User.findByPk(req?.params?.id);
+    if (!user) return notFound(req, res);
+    await user.destroy();
+    return success(req, res);
+  } catch (err) {
+    return error(res, err);
+  }
+};
 
 module.exports = { create, update, _delete, read, reads };
